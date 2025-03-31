@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Estoque</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+        }
+        .low-stock {
+            background-color: #fef2f2;
+        }
+        .product-image {
+            height: 60px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex">
+        <!-- Sidebar -->
+        <nav class="sidebar w-64 bg-blue-800 text-white p-4">
+            <div class="flex items-center space-x-2 mb-8">
+                <i class="fas fa-store text-2xl"></i>
+                <h1 class="text-xl font-bold">Gestão Comercial</h1>
+            </div>
+            <ul class="space-y-2">
+                <li>
+                    <a href="index.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="products.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-box-open"></i>
+                        <span>Produtos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="sales.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-cash-register"></i>
+                        <span>Vendas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventory.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700 bg-blue-700">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Estoque</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-cog"></i>
+                        <span>Configurações</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Gestão de Estoque</h2>
+                <div class="flex space-x-2">
+                    <button id="export-csv" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                        <i class="fas fa-file-export mr-2"></i>Exportar CSV
+                    </button>
+                    <button id="print-report" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-print mr-2"></i>Imprimir Relatório
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inventory Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-4 rounded shadow">
+                    <p class="text-gray-500">Total de Produtos</p>
+                    <h3 class="text-2xl font-bold" id="total-products">0</h3>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <p class="text-gray-500">Valor Total em Estoque</p>
+                    <h3 class="text-2xl font-bold" id="total-value">R$ 0,00</h3>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <p class="text-gray-500">Produtos com Baixo Estoque</p>
+                    <h3 class="text-2xl font-bold text-red-500" id="low-stock-count">0</h3>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <p class="text-gray-500">Produtos Sem Estoque</p>
+                    <h3 class="text-2xl font-bold text-red-500" id="out-of-stock-count">0</h3>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="mb-4 flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-gray-700">Filtrar por:</label>
+                        <select id="category-filter" class="p-2 border rounded">
+                            <option value="">Todas Categorias</option>
+                        </select>
+                        <select id="stock-filter" class="p-2 border rounded">
+                            <option value="">Todos</option>
+                            <option value="low">Baixo Estoque</option>
+                            <option value="out">Sem Estoque</option>
+                        </select>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="search-product" placeholder="Buscar produto..." class="p-2 border rounded pl-8">
+                        <i class="fas fa-search absolute left-2 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Imagem</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoria</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Preço</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estoque</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table" class="bg-white divide-y divide-gray-200">
+                            <!-- Inventory items will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Reorder Modal -->
+    <div id="reorder-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">Pedido de Compra</h3>
+            <form id="reorder-form">
+                <input type="hidden" id="reorder-product-id">
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Produto</label>
+                    <input type="text" id="reorder-product-name" class="w-full p-2 border rounded" readonly>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Quantidade Atual</label>
+                    <input type="text" id="reorder-current-stock" class="w-full p-2 border rounded" readonly>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Quantidade a Pedir</label>
+                    <input type="number" id="reorder-quantity" min="1" value="10" class="w-full p-2 border rounded" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Fornecedor</label>
+                    <input type="text" id="reorder-supplier" class="w-full p-2 border rounded" required>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancel-reorder" class="px-4 py-2 border rounded">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Enviar Pedido</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const products = getProducts();
+            const settings = getSettings();
+            
+            // Update summary
+            document.getElementById('total-products').textContent = products.length;
+            
+            const totalValue = products.reduce((sum, product) => sum + (product.price * product.stock), 0);
+            document.getElementById('total-value').textContent = `R$ ${totalValue.toFixed(2)}`;
+            
+            const lowStockCount = products.filter(p => p.stock < settings.lowStockThreshold && p.stock > 0).length;
+            document.getElementById('low-stock-count').textContent = lowStockCount;
+            
+            const outOfStockCount = products.filter(p => p.stock <= 0).length;
+            document.getElementById('out-of-stock-count').textContent = outOfStockCount;
+            
+            // Load categories
+            const categories = [...new Set(products.map(p => p.category))];
+            const categoryFilter = document.getElementById('category-filter');
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
+            });
+            
+            // Load inventory table
+            function loadInventoryTable(filteredProducts = products) {
+                const inventoryTable = document.getElementById('inventory-table');
+                inventoryTable.innerHTML = filteredProducts.map(product => {
+                    const totalValue = product.price * product.stock;
+                    let status = '';
+                    let statusClass = '';
+                    
+                    if (product.stock <= 0) {
+                        status = 'Sem Estoque';
+                        statusClass = 'bg-red-100 text-red-800';
+                    } else if (product.stock < settings.lowStockThreshold) {
+                        status = 'Baixo Estoque';
+                        statusClass = 'bg-yellow-100 text-yellow-800';
+                    } else {
+                        status = 'Em Estoque';
+                        statusClass = 'bg-green-100 text-green-800';
+                    }
+                    
+                    return `
+                        <tr class="${product.stock < settings.lowStockThreshold ? 'low-stock' : ''}">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                ${product.image ? `<img src="${product.image}" alt="${product.name}" class="product-image w-12 rounded">` : '—'}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">${product.name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${product.category}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">R$ ${product.price.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap font-medium ${product.stock < settings.lowStockThreshold ? 'text-red-500' : ''}">
+                                ${product.stock}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">R$ ${totalValue.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full ${statusClass}">${status}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                ${product.stock < settings.lowStockThreshold ? `
+                                <button onclick="openReorderModal('${product.id}')" class="text-blue-500 hover:text-blue-700 mr-2">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                                ` : ''}
+                                <button onclick="window.location.href='products.html#edit=${product.id}'" class="text-blue-500 hover:text-blue-700">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            
+            loadInventoryTable();
+            
+            // Filter products
+            document.getElementById('category-filter').addEventListener('change', function() {
+                const category = this.value;
+                const stockFilter = document.getElementById('stock-filter').value;
+                let filteredProducts = products;
+                
+                if (category) {
+                    filteredProducts = filteredProducts.filter(p => p.category === category);
+                }
+                
+                if (stockFilter === 'low') {
+                    filteredProducts = filteredProducts.filter(p => p.stock < settings.lowStockThreshold && p.stock > 0);
+                } else if (stockFilter === 'out') {
+                    filteredProducts = filteredProducts.filter(p => p.stock <= 0);
+                }
+                
+                loadInventoryTable(filteredProducts);
+            });
+            
+            document.getElementById('stock-filter').addEventListener('change', function() {
+                const stockFilter = this.value;
+                const category = document.getElementById('category-filter').value;
+                let filteredProducts = products;
+                
+                if (category) {
+                    filteredProducts = filteredProducts.filter(p => p.category === category);
+                }
+                
+                if (stockFilter === 'low') {
+                    filteredProducts = filteredProducts.filter(p => p.stock < settings.lowStockThreshold && p.stock > 0);
+                } else if (stockFilter === 'out') {
+                    filteredProducts = filteredProducts.filter(p => p.stock <= 0);
+                }
+                
+                loadInventoryTable(filteredProducts);
+            });
+            
+            // Search products
+            document.getElementById('search-product').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filteredProducts = products.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) || 
+                    p.category.toLowerCase().includes(searchTerm)
+                );
+                loadInventoryTable(filteredProducts);
+            });
+            
+            // Export to CSV
+            document.getElementById('export-csv').addEventListener('click', function() {
+                let csv = 'Produto,Categoria,Preço,Estoque,Valor Total,Status\n';
+                
+                products.forEach(product => {
+                    const totalValue = product.price * product.stock;
+                    let status = '';
+                    
+                    if (product.stock <= 0) {
+                        status = 'Sem Estoque';
+                    } else if (product.stock < settings.lowStockThreshold) {
+                        status = 'Baixo Estoque';
+                    } else {
+                        status = 'Em Estoque';
+                    }
+                    
+                    csv += `"${product.name}","${product.category}",${product.price.toFixed(2)},${product.stock},${totalValue.toFixed(2)},"${status}"\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `estoque_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            // Print report
+            document.getElementById('print-report').addEventListener('click', function() {
+                window.print();
+            });
+            
+            // Reorder modal
+            window.openReorderModal = function(productId) {
+                const product = products.find(p => p.id === productId);
+                if (!product) return;
+                
+                document.getElementById('reorder-product-id').value = product.id;
+                document.getElementById('reorder-product-name').value = product.name;
+                document.getElementById('reorder-current-stock').value = product.stock;
+                document.getElementById('reorder-modal').classList.remove('hidden');
+            };
+            
+            document.getElementById('cancel-reorder').addEventListener('click', function() {
+                document.getElementById('reorder-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('reorder-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const productId = document.getElementById('reorder-product-id').value;
+                const quantity = document.getElementById('reorder-quantity').value;
+                const supplier = document.getElementById('reorder-supplier').value;
+                
+                // In a real app, you would send this to your backend
+                alert(`Pedido de compra enviado para ${supplier}:\nProduto: ${document.getElementById('reorder-product-name').value}\nQuantidade: ${quantity}`);
+                
+                document.getElementById('reorder-modal').classList.add('hidden');
+                this.reset();
+            });
+        });
+    </script>
+</body>
+</html>

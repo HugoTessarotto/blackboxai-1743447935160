@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Vendas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+        }
+        .sale-item {
+            transition: all 0.2s ease;
+        }
+        .sale-item:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex">
+        <!-- Sidebar -->
+        <nav class="sidebar w-64 bg-blue-800 text-white p-4">
+            <div class="flex items-center space-x-2 mb-8">
+                <i class="fas fa-store text-2xl"></i>
+                <h1 class="text-xl font-bold">Gestão Comercial</h1>
+            </div>
+            <ul class="space-y-2">
+                <li>
+                    <a href="index.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="products.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-box-open"></i>
+                        <span>Produtos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="sales.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700 bg-blue-700">
+                        <i class="fas fa-cash-register"></i>
+                        <span>Vendas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventory.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Estoque</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-cog"></i>
+                        <span>Configurações</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <h2 class="text-2xl font-bold mb-6">Registro de Vendas</h2>
+            
+            <!-- New Sale Form -->
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <h3 class="text-xl font-semibold mb-4">Nova Venda</h3>
+                <form id="new-sale-form">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">Cliente</label>
+                            <input type="text" id="customer-name" class="w-full p-2 border rounded" placeholder="Nome do cliente">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Data</label>
+                            <input type="date" id="sale-date" class="w-full p-2 border rounded" value="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">Adicionar Produto</label>
+                        <div class="flex space-x-2">
+                            <select id="product-select" class="flex-1 p-2 border rounded">
+                                <option value="">Selecione um produto</option>
+                            </select>
+                            <input type="number" id="product-quantity" min="1" value="1" class="w-20 p-2 border rounded">
+                            <button type="button" id="add-item-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="border rounded-lg overflow-hidden mb-4">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produto</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Preço Unitário</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantidade</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subtotal</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sale-items" class="bg-white divide-y divide-gray-200">
+                                <!-- Sale items will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="text-lg font-semibold">
+                            Total: <span id="sale-total">R$ 0,00</span>
+                        </div>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                            Finalizar Venda
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Recent Sales -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-xl font-semibold mb-4">Histórico de Vendas</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Itens</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sales-history" class="bg-white divide-y divide-gray-200">
+                            <!-- Sales history will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Sales-specific JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load products into select dropdown
+            const products = getProducts();
+            const productSelect = document.getElementById('product-select');
+            
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = `${product.name} (${product.stock} em estoque)`;
+                productSelect.appendChild(option);
+            });
+            
+            // Initialize sale items array
+            let saleItems = [];
+            
+            // Add item to sale
+            document.getElementById('add-item-btn').addEventListener('click', function() {
+                const productId = productSelect.value;
+                const quantity = parseInt(document.getElementById('product-quantity').value);
+                
+                if (!productId || quantity < 1) {
+                    alert('Selecione um produto e quantidade válida');
+                    return;
+                }
+                
+                const product = products.find(p => p.id === productId);
+                if (!product) return;
+                
+                if (quantity > product.stock) {
+                    alert('Quantidade solicitada maior que o estoque disponível');
+                    return;
+                }
+                
+                // Check if product already in sale
+                const existingItem = saleItems.find(item => item.productId === productId);
+                if (existingItem) {
+                    existingItem.quantity += quantity;
+                } else {
+                    saleItems.push({
+                        productId: productId,
+                        name: product.name,
+                        price: product.price,
+                        quantity: quantity
+                    });
+                }
+                
+                updateSaleItemsDisplay();
+            });
+            
+            // Update sale items display
+            function updateSaleItemsDisplay() {
+                const saleItemsTable = document.getElementById('sale-items');
+                const settings = getSettings();
+                let total = 0;
+                
+                saleItemsTable.innerHTML = saleItems.map(item => {
+                    const subtotal = item.price * item.quantity;
+                    total += subtotal;
+                    
+                    return `
+                        <tr class="sale-item">
+                            <td class="px-6 py-4 whitespace-nowrap">${item.name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${settings.currency} ${item.price.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${item.quantity}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${settings.currency} ${subtotal.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <button onclick="removeSaleItem('${item.productId}')" class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                document.getElementById('sale-total').textContent = 
+                    `${settings.currency} ${total.toFixed(2)}`;
+            }
+            
+            // Remove item from sale
+            window.removeSaleItem = function(productId) {
+                saleItems = saleItems.filter(item => item.productId !== productId);
+                updateSaleItemsDisplay();
+            };
+            
+            // Submit sale
+            document.getElementById('new-sale-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (saleItems.length === 0) {
+                    alert('Adicione pelo menos um item à venda');
+                    return;
+                }
+                
+                const customer = document.getElementById('customer-name').value || 'Cliente não informado';
+                const date = document.getElementById('sale-date').value;
+                
+                const total = saleItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const tax = total * getSettings().taxRate;
+                const grandTotal = total + tax;
+                
+                const sale = {
+                    customer: customer,
+                    date: date,
+                    items: saleItems,
+                    subtotal: total,
+                    tax: tax,
+                    total: grandTotal
+                };
+                
+                recordSale(sale);
+                alert('Venda registrada com sucesso!');
+                
+                // Reset form
+                saleItems = [];
+                updateSaleItemsDisplay();
+                document.getElementById('customer-name').value = '';
+                document.getElementById('sale-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('sale-total').textContent = 'R$ 0,00';
+                
+                // Update sales history
+                loadSalesHistory();
+            });
+            
+            // Load sales history
+            function loadSalesHistory() {
+                const sales = getSales().reverse();
+                const salesHistoryTable = document.getElementById('sales-history');
+                const settings = getSettings();
+                
+                salesHistoryTable.innerHTML = sales.map(sale => `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${new Date(sale.date).toLocaleDateString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${sale.customer}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${sale.items.length}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${settings.currency} ${sale.total.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button onclick="viewSaleDetails('${sale.id}')" class="text-blue-500 hover:text-blue-700">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+            // View sale details
+            window.viewSaleDetails = function(saleId) {
+                const sale = getSales().find(s => s.id === saleId);
+                if (!sale) return;
+                
+                let details = `Venda #${sale.id}\n`;
+                details += `Data: ${new Date(sale.date).toLocaleDateString()}\n`;
+                details += `Cliente: ${sale.customer}\n\n`;
+                details += 'Itens:\n';
+                
+                sale.items.forEach(item => {
+                    details += `- ${item.name}: ${item.quantity} x ${getSettings().currency} ${item.price.toFixed(2)} = ${getSettings().currency} ${(item.price * item.quantity).toFixed(2)}\n`;
+                });
+                
+                details += `\nSubtotal: ${getSettings().currency} ${sale.subtotal.toFixed(2)}\n`;
+                details += `Imposto (${(getSettings().taxRate * 100).toFixed(0)}%): ${getSettings().currency} ${sale.tax.toFixed(2)}\n`;
+                details += `Total: ${getSettings().currency} ${sale.total.toFixed(2)}`;
+                
+                alert(details);
+            };
+            
+            // Initial load
+            loadSalesHistory();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+        }
+        .danger-zone {
+            border-left: 4px solid #ef4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex">
+        <!-- Sidebar -->
+        <nav class="sidebar w-64 bg-blue-800 text-white p-4">
+            <div class="flex items-center space-x-2 mb-8">
+                <i class="fas fa-store text-2xl"></i>
+                <h1 class="text-xl font-bold">Gestão Comercial</h1>
+            </div>
+            <ul class="space-y-2">
+                <li>
+                    <a href="index.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="products.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-box-open"></i>
+                        <span>Produtos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="sales.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-cash-register"></i>
+                        <span>Vendas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventory.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Estoque</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="flex items-center space-x-2 p-2 rounded hover:bg-blue-700 bg-blue-700">
+                        <i class="fas fa-cog"></i>
+                        <span>Configurações</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <h2 class="text-2xl font-bold mb-6">Configurações do Sistema</h2>
+            
+            <!-- General Settings -->
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <h3 class="text-xl font-semibold mb-4">Configurações Gerais</h3>
+                <form id="general-settings">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">Moeda</label>
+                            <select id="currency" class="w-full p-2 border rounded">
+                                <option value="R$">Real Brasileiro (R$)</option>
+                                <option value="$">Dólar Americano ($)</option>
+                                <option value="€">Euro (€)</option>
+                                <option value="£">Libra Esterlina (£)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Limite de Estoque Baixo</label>
+                            <input type="number" id="low-stock-threshold" min="1" class="w-full p-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Taxa de Imposto (%)</label>
+                            <input type="number" id="tax-rate" min="0" max="100" step="0.1" class="w-full p-2 border rounded">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            Salvar Configurações
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Data Management -->
+            <div class="bg-white p-6 rounded-lg shadow mb-6 danger-zone">
+                <h3 class="text-xl font-semibold mb-4 text-red-600">Gerenciamento de Dados</h3>
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-medium mb-2">Exportar Dados</h4>
+                        <p class="text-gray-600 mb-2">Faça backup de todos os dados do sistema.</p>
+                        <button id="export-all-data" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                            <i class="fas fa-file-export mr-2"></i>Exportar Tudo
+                        </button>
+                    </div>
+                    <div>
+                        <h4 class="font-medium mb-2">Importar Dados</h4>
+                        <p class="text-gray-600 mb-2">Restaurar dados de um backup.</p>
+                        <input type="file" id="import-file" class="hidden" accept=".json">
+                        <button onclick="document.getElementById('import-file').click()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-file-import mr-2"></i>Selecionar Arquivo
+                        </button>
+                        <button id="import-data" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 ml-2" disabled>
+                            <i class="fas fa-upload mr-2"></i>Importar
+                        </button>
+                    </div>
+                    <div>
+                        <h4 class="font-medium mb-2">Redefinir Dados</h4>
+                        <p class="text-gray-600 mb-2">Limpar todos os dados do sistema. Esta ação não pode ser desfeita.</p>
+                        <button id="reset-data" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                            <i class="fas fa-trash mr-2"></i>Redefinir Tudo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-xl font-semibold mb-4">Sobre o Sistema</h3>
+                <div class="space-y-2">
+                    <p class="text-gray-700"><span class="font-medium">Nome:</span> Sistema de Gestão de Vendas e Estoque</p>
+                    <p class="text-gray-700"><span class="font-medium">Versão:</span> 1.0.0</p>
+                    <p class="text-gray-700"><span class="font-medium">Desenvolvedor:</span> Sua Empresa</p>
+                    <p class="text-gray-700"><span class="font-medium">Última Atualização:</span> ${new Date().toLocaleDateString()}</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4" id="modal-title">Confirmação</h3>
+            <p class="mb-4" id="modal-message">Tem certeza que deseja realizar esta ação?</p>
+            <div class="flex justify-end space-x-2">
+                <button id="modal-cancel" class="px-4 py-2 border rounded">Cancelar</button>
+                <button id="modal-confirm" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const settings = getSettings();
+            
+            // Load current settings
+            document.getElementById('currency').value = settings.currency;
+            document.getElementById('low-stock-threshold').value = settings.lowStockThreshold;
+            document.getElementById('tax-rate').value = settings.taxRate * 100;
+            
+            // Save settings
+            document.getElementById('general-settings').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const newSettings = {
+                    currency: document.getElementById('currency').value,
+                    lowStockThreshold: parseInt(document.getElementById('low-stock-threshold').value),
+                    taxRate: parseFloat(document.getElementById('tax-rate').value) / 100
+                };
+                
+                saveSettings(newSettings);
+                alert('Configurações salvas com sucesso!');
+            });
+            
+            // Export all data
+            document.getElementById('export-all-data').addEventListener('click', function() {
+                const data = {
+                    settings: getSettings(),
+                    products: getProducts(),
+                    sales: getSales(),
+                    exportedAt: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `backup_gestao_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            // Import data
+            document.getElementById('import-file').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        document.getElementById('import-data').disabled = false;
+                        
+                        document.getElementById('import-data').onclick = function() {
+                            showConfirmation(
+                                'Importar Dados',
+                                'Tem certeza que deseja importar estes dados? Todos os dados atuais serão substituídos.',
+                                function() {
+                                    if (data.settings) localStorage.setItem(SETTINGS_KEY, JSON.stringify(data.settings));
+                                    if (data.products) localStorage.setItem(PRODUCTS_KEY, JSON.stringify(data.products));
+                                    if (data.sales) localStorage.setItem(SALES_KEY, JSON.stringify(data.sales));
+                                    alert('Dados importados com sucesso!');
+                                    window.location.reload();
+                                }
+                            );
+                        };
+                    } catch (error) {
+                        alert('Erro ao ler o arquivo. Certifique-se de que é um arquivo JSON válido.');
+                    }
+                };
+                reader.readAsText(file);
+            });
+            
+            // Reset data
+            document.getElementById('reset-data').addEventListener('click', function() {
+                showConfirmation(
+                    'Redefinir Todos os Dados',
+                    'Tem certeza que deseja redefinir todos os dados? Esta ação não pode ser desfeita.',
+                    function() {
+                        localStorage.removeItem(SETTINGS_KEY);
+                        localStorage.removeItem(PRODUCTS_KEY);
+                        localStorage.removeItem(SALES_KEY);
+                        alert('Todos os dados foram redefinidos. A página será recarregada.');
+                        window.location.reload();
+                    }
+                );
+            });
+            
+            // Confirmation modal
+            function showConfirmation(title, message, confirmCallback) {
+                document.getElementById('modal-title').textContent = title;
+                document.getElementById('modal-message').textContent = message;
+                document.getElementById('confirmation-modal').classList.remove('hidden');
+                
+                document.getElementById('modal-confirm').onclick = function() {
+                    confirmCallback();
+                    document.getElementById('confirmation-modal').classList.add('hidden');
+                };
+                
+                document.getElementById('modal-cancel').onclick = function() {
+                    document.getElementById('confirmation-modal').classList.add('hidden');
+                };
+            }
+        });
+    </script>
+</body>
+</html>
